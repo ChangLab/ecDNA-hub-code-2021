@@ -16,17 +16,20 @@ for (i in unique(colo.df$ecDNA_number)) {
 }
 
 # resample cluster size-matched distribution to calculate bursting frequency for each ecDNA cluster
-colo.df$freq.adj <- colo.df$bursting_frequency
-for (i in 1:length(rownames(colo.df))) {
-    colo.df$freq.adj[i] <- sum(sample(colo.dist[[as.character(colo.df$ecDNA_number[i])]], 10)) / 10
+colo.df.resample <- data.frame()
+for (i in colo.df$ecDNA_number) {
+    dist.i <- colo.dist[[as.character(i)]]
+    n <- length(dist.i)
+    colo.df.resample <- rbind(colo.df.resample, c(i, sum(sample(dist.i, n, replace = TRUE)) / n))
 }
+colnames(colo.df.resample) <- c('ecDNA_number', 'bursting_frequency')
 
 # classify hubs as singleton or multiple
-colo.df$single <- ifelse(colo.df$ecDNA_number == 1,  "Single ecDNA", "ecDNA in hub")
+colo.df.resample$single <- ifelse(colo.df.resample$ecDNA_number == 1,  "Single ecDNA", "ecDNA in hub")
 
 #plotting
-ggplot(colo.df, aes(x = single, y = freq.adj, fill = single)) +
-	geom_violin(alpha = 0.6) + 
+ggplot(colo.df.resample, aes(x = single, y = bursting_frequency, fill = single)) + 
+    geom_violin(alpha = 0.6) + 
     geom_boxplot(width = 0.2) +
     #geom_quasirandom(width = 0.3) + 
     stat_compare_means(comparisons = list(c("Single ecDNA", "ecDNA in hub"))) +
