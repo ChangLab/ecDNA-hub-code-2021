@@ -30,8 +30,7 @@ colo.df.resample$single <- ifelse(colo.df.resample$ecDNA_number == 1,  "Single e
 #plotting
 ggplot(colo.df.resample, aes(x = single, y = bursting_frequency, fill = single)) + 
     geom_violin(alpha = 0.6) + 
-    geom_boxplot(width = 0.2) +
-    #geom_quasirandom(width = 0.3) + 
+    geom_boxplot(width = 0.2) + 
     stat_compare_means(comparisons = list(c("Single ecDNA", "ecDNA in hub"))) +
     theme_classic() + 
     scale_fill_manual(values = my_custom_palettes$splash_of_salmon[c(4,5)]) +
