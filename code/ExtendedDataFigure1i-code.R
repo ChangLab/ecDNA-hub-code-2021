@@ -3,7 +3,7 @@ library(ggplot2)
 library(ggpubr)
 source("data/custom_colors.R")
 
-set.seed(18)
+set.seed(1)
 colo.df <- read.delim("data/COLO320DM_ecDNAcount_vs_bursting.txt")
 
 # make list containings vectors of how many ecDNAs are transcribing for ecDNA cluster of given size
