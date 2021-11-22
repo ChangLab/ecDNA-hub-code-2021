@@ -16,8 +16,8 @@ source("data/custom_colors.R")
 hic_to_gTrack_matrix <- function(hic_file, intervals, res, chr_order, max_value, juicer_path, java_path) {
 	options(scipen = 99)
 	intervals_gr <- GRanges(seqnames = intervals$V1
-	, ranges = IRanges(round_any(intervals$V2 ,res)
-	, round_any(intervals$V3, res, f = ceiling)))
+		, ranges = IRanges(round_any(intervals$V2 ,res)
+			, round_any(intervals$V3, res, f = ceiling)))
 	output_files <- list()
 	for (i in 1:length(intervals_gr)) {
 		chr1 <- as.character(seqnames(intervals_gr))[i]
@@ -28,13 +28,13 @@ hic_to_gTrack_matrix <- function(hic_file, intervals, res, chr_order, max_value,
 			start2 <- start(intervals_gr)[j]
 			end2 <- end(intervals_gr)[j]
 			output <- paste0(gsub('.allValidPairs.hic', '', hic_file), '.',chr1,':',start1, ":",end1, "."
-			, chr2,':',start2, ":",end2, ".", res,'.txt')
+				, chr2,':',start2, ":",end2, ".", res,'.txt')
 			if (file.exists(paste0(gsub('.allValidPairs.hic', '', hic_file), '.',chr2,':',start2, ":",end2, ".",
-							chr1,':',start1, ":",end1, ".", res,'.txt'))) {
+				chr1,':',start1, ":",end1, ".", res,'.txt'))) {
 				next
 			}
 			system(paste0(java_path, ' -jar ', juicer_path,' dump observed ','KR ',hic_file, ' '
-							, chr1, ':',start1, ":",end1,' ',chr2,':',start2, ":",end2,' BP ', res,' ',output))
+				, chr1, ':',start1, ":",end1,' ',chr2,':',start2, ":",end2,' BP ', res,' ',output))
 			output_files[[paste0(i,"_",j)]] <- output
 		}
 	}
@@ -115,7 +115,7 @@ getPromotersOfGene <- function(gene, upstream = 100, downstream = 100, genome = 
 }
 
 plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
-					, gene_list, ymax,res = 10000, juicer_path, java_path) {
+		, gene_list, ymax,res = 10000, juicer_path, java_path) {
 	options(scipen = 999)
 	loops <- read.delim(bedpe)
 	chr <- gsub(":.*", "", window)
@@ -144,27 +144,27 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 		hic_file <- hic_files[i]
 		dump_file <- paste0("~/tmp/", basename(hic_file), "_", chr,"_",res, ".dump")
 		system(command = paste0(java_path, " -jar ", juicer_path," dump observed NONE ", hic_file, " "
-								, anchor_chr, ":", round_any(anchor, res, f = floor),":"
-								,round_any(anchor, res, f = ceiling)," ", chr, " BP ", res, " ", dump_file))
+			, anchor_chr, ":", round_any(anchor, res, f = floor),":"
+			,round_any(anchor, res, f = ceiling)," ", chr, " BP ", res, " ", dump_file))
 		chr_norm <- suppressMessages(readr::read_delim(dump_file,delim = "\t", col_names = FALSE))
 		anchor_bin <- unique(chr_norm$X1[anchor >= chr_norm$X1 & anchor < chr_norm$X1 + res])
 		if( length(anchor_bin) == 0 ) {
 			anchor_bin <- unique(chr_norm$X2[anchor >= chr_norm$X2 & anchor < chr_norm$X2 + res])
 		}
 		loops_plot <- loops[loops$chr1 == anchor_chr & (abs(rowMeans(loops[,c("x1", 'x2')]) - anchor) < 25000 |
-							abs(rowMeans(loops[,c("y1", 'y2')]) - anchor) < 25000),]
+			abs(rowMeans(loops[,c("y1", 'y2')]) - anchor) < 25000),]
 		loops_plot$Q.Value_Bias[loops_plot$Q.Value_Bias == 0] <- min(loops_plot$Q.Value_Bias[
 			loops_plot$Q.Value_Bias != 0], na.rm = TRUE)
 		loops_plot <- loops_plot[order(loops_plot$Q.Value_Bias, decreasing = TRUE),]
-		loops_gr <- GRanges(seqnames = loops_plot$chr1,
-							ranges = IRanges(start = rowMeans(loops_plot[,c("x1", 'x2')])
-											, end = rowMeans(loops_plot[,c("y1", 'y2')])))
+		loops_gr <- GRanges(seqnames = loops_plot$chr1
+			, ranges = IRanges(start = rowMeans(loops_plot[,c("x1", 'x2')])
+			, end = rowMeans(loops_plot[,c("y1", 'y2')])))
 		loops_gr$value <- -log10(loops_plot$Q.Value_Bias)
 		loops_list <- SimpleList(Loops = loops_gr)
 		
 		loopO <- lapply(seq_along(loops_list), function(x){
 			subLoops <- subsetByOverlaps(loops_list[[x]]
-										, region, ignore.strand = TRUE, type = "within") 
+				, region, ignore.strand = TRUE, type = "within") 
 			if(length(subLoops)>0){
 				dfx <- getArchDF(subLoops)
 				dfx$name <- Rle(paste0(names(loops_list)[x]))
@@ -198,8 +198,7 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 	p1 <- ggplot() + 
 		geom_vline(xintercept = anchor, color = "grey", linetype = "longdash", size = 1) + 
 		geom_line(data = vp_plot, aes(x = X2, y = X3, color = sample)) + theme_classic() + 
-		coord_cartesian(ylim=c(0, ymax)
-						, xlim = c(chrstart_plot, chrend_plot)) +
+		coord_cartesian(ylim=c(0, ymax), xlim = c(chrstart_plot, chrend_plot)) +
 		scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
 		ggtitle(label = paste0(chr, ":", chrstart_plot, "-", chrend_plot, "; ", res /1000, " kb resolution")) + 
 		theme(legend.position = "top", axis.title.x = element_blank(), axis.line = element_blank(),
@@ -226,10 +225,10 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 			coord_cartesian(ylim = c(-100,0)) +
 			scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
 			scale_color_gradientn(colors = pal, limits = c(valueMin, valueMax), name = "-log10(Adjusted P-value)") +
-			theme(axis.ticks.y = element_blank(),axis.text.y = element_blank(),axis.line = element_blank(),
-					strip.background = element_blank(), axis.text.x = element_blank(), 
-					, axis.ticks.x = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size = 1),
-					legend.box.background = element_rect(color = NA)) +
+			theme(axis.ticks.y = element_blank(),axis.text.y = element_blank(),axis.line = element_blank()
+				, strip.background = element_blank(), axis.text.x = element_blank(), 
+				, axis.ticks.x = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size = 1)
+				, legend.box.background = element_rect(color = NA)) +
 			guides(color= guide_colorbar(barwidth = 0.75, barheight = 3)) 
 		} else {
 			df <- data.frame(facet = "Loops", start = 0, end = 0, strand = "*", symbol = "none")
@@ -238,9 +237,9 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 				facet_grid(facet~.) + theme_classic() +
 				scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) +
 				theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
-				theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank(), 
-					axis.line = element_blank(),#strip.text.y = element_text(size = facetbaseSize, angle = 0), 
-					strip.background = element_blank(), axis.text.x = element_blank()
+				theme(axis.title.y=element_blank(), axis.text.y=element_blank(),axis.ticks.y=element_blank()
+					, axis.line = element_blank()
+					, strip.background = element_blank(), axis.text.x = element_blank()
 					, axis.ticks.x = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size = 1))
 				}
 	
@@ -253,9 +252,9 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 		ylim(min(geneinfobed$pos) -1, max(geneinfobed$pos) +1) + 
 		scale_x_continuous(limits = c(start(region), end(region)), expand = c(0,0)) + 
 		theme(axis.ticks.y = element_blank(),axis.text.y = element_blank(), axis.text.x = element_blank()
-				, axis.ticks.x = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size = 1)
-				, strip.background = element_blank(), axis.line = element_blank())
-				
+			, axis.ticks.x = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size = 1)
+			, strip.background = element_blank(), axis.line = element_blank())
+			
 	height <- 1
 	if (length(levels(vp_plot$sample)) > 3) {
 		height <- min(1*length(levels(vp_plot$sample)), 6) 
@@ -270,13 +269,13 @@ plot_v4c <- function(hic_files, names, norm, bedpe, window, anchor_gene, color
 
 # Get genes for gTrack plotting
 gt.ge = track.gencode(genes =c("MYC", "PVT1", "CASC8", "FAM84B", "DUSP22", "PLUT", "PCAT1")
-						, bg.col = "black", cds.col = "black", utr.col = "black"
-						, st.col = "black", en.col = "black", height = 50)
+	, bg.col = "black", cds.col = "black", utr.col = "black"
+	, st.col = "black", en.col = "black", height = 50)
 
 # Read in genomic intervals and specify plotting windows for gTrack
 intervals <- read.delim("data/COLO320DM_intervals.txt", header = FALSE)
 intervals_gr_vis <- GRanges(seqnames = intervals$V1
-                            , ranges = IRanges(intervals$V2, intervals$V3+res-1))
+	, ranges = IRanges(intervals$V2, intervals$V3+res-1))
 intervals_gr_vis_windows <- unlist(slidingWindows(intervals_gr_vis, width = res, step = res))
 seqlevels(intervals_gr_vis) <- chr_order
 seqlevels(intervals_gr_vis_windows) <- chr_order
@@ -295,8 +294,8 @@ matrix_all_mat <- hic_to_gTrack_matrix(hic_file, intervals, res, chr_order, max_
 
 # Plot HiChIP matrix
 plot.gTrack(c(gt.ge, gTrack(intervals_gr_vis_windows, mdata = matrix_all_mat, stack.gap = 0.5
-				, colormaps = colorRampPalette(c("white", brewer.pal(n = 9, name = "Reds")))(100), height = 500))
-				, windows = intervals_gr_vis, legend.params = list(plot = FALSE))
+	, colormaps = colorRampPalette(c("white", brewer.pal(n = 9, name = "Reds")))(100), height = 500))
+	, windows = intervals_gr_vis, legend.params = list(plot = FALSE))
 
 # Read in ecDNA reconstruction and make graph for gTrack plotting
 segments <- read.delim("data/COLO320DM_OM_segments_ordered.txt")
@@ -310,14 +309,14 @@ graph = data.frame(from = c(seq(1, length(gr)-1), 22), to = c(seq(2, length(gr))
 # Plot ecDNA reconstruction and ChIP coverage tracks
 # bigwig files available on GEO at GSE159972
 plot.gTrack(c(gt.ge, gTrack('data/COLO320DM_WGS.bw', col = my_custom_palettes$splash_of_salmon[4]
-							, yaxis.pretty = 1, ylab = "WGS",cex.label = 0.5,height = 100, bar = TRUE, y1 = 100)
-				, gTrack('data/COLO320DM_Brd4.bw', col = my_custom_palettes$splash_of_salmon[4], yaxis.pretty = 1
-						, ylab = "BRD4 ChIP-seq",cex.label = 0.5,height = 100, bar = TRUE, y1 = 500)
-				, gTrack('data/COLO320DM_DMSO_H3K27ac.bw', col = my_custom_palettes$splash_of_salmon[4]
-						, yaxis.pretty = 1, ylab = "H3K27ac ChIP-seq",height = 100, bar = TRUE, y1 = 500)
-				, gTrack(gr, edges = graph , stack.gap = 5, y.field = "y",height = 500, yaxis = FALSE
-						, gr.colorfield = "color", colormaps = colors, y1 = length(gr) + 1))
-			, windows = intervals_gr_vis, legend.params = list(plot = FALSE))
+			, yaxis.pretty = 1, ylab = "WGS",cex.label = 0.5,height = 100, bar = TRUE, y1 = 100)
+		, gTrack('data/COLO320DM_Brd4.bw', col = my_custom_palettes$splash_of_salmon[4], yaxis.pretty = 1
+			, ylab = "BRD4 ChIP-seq",cex.label = 0.5,height = 100, bar = TRUE, y1 = 500)
+		, gTrack('data/COLO320DM_DMSO_H3K27ac.bw', col = my_custom_palettes$splash_of_salmon[4]
+			, yaxis.pretty = 1, ylab = "H3K27ac ChIP-seq",height = 100, bar = TRUE, y1 = 500)
+		, gTrack(gr, edges = graph , stack.gap = 5, y.field = "y",height = 500, yaxis = FALSE
+			, gr.colorfield = "color", colormaps = colors, y1 = length(gr) + 1))
+	, windows = intervals_gr_vis, legend.params = list(plot = FALSE))
 
 # Plot virtual 4C signal at PVT1 promoter
 names(hic_file) <- gsub("\\..*", "",gsub(".*data/", "", hic_file))
@@ -329,6 +328,6 @@ mycolors <- c(my_custom_palettes$splash_of_salmon, "#E6C1BC")
 gene_list <- c("MYC", "PVT1", "CASC8", "PCAT1")
 
 plot_v4c(hic_file, color = mycolors[1], names = names(hic_file)[1], res = res
-		, norm = validPairs, bedpe = loops_file, window = "chr8:127420000-129050000"
-		, anchor_gene = "PVT1", gene_list = gene_list, ymax = 2, java_path = java_path
-		, juicer_path = juicer_path)
+	, norm = validPairs, bedpe = loops_file, window = "chr8:127420000-129050000"
+	, anchor_gene = "PVT1", gene_list = gene_list, ymax = 2, java_path = java_path
+	, juicer_path = juicer_path)
