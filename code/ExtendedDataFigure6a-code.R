@@ -16,8 +16,8 @@ source("data/custom_colors.R")
 hic_to_gTrack_matrix <- function(hic_file, intervals, res, chr_order, max_value, juicer_path, java_path) {
 	options(scipen = 99)
 	intervals_gr <- GRanges(seqnames = intervals$V1
-							, ranges = IRanges(round_any(intervals$V2 ,res)
-												, round_any(intervals$V3, res, f = ceiling)))
+	, ranges = IRanges(round_any(intervals$V2 ,res)
+	, round_any(intervals$V3, res, f = ceiling)))
 	output_files <- list()
 	for (i in 1:length(intervals_gr)) {
 		chr1 <- as.character(seqnames(intervals_gr))[i]
@@ -28,7 +28,7 @@ hic_to_gTrack_matrix <- function(hic_file, intervals, res, chr_order, max_value,
 			start2 <- start(intervals_gr)[j]
 			end2 <- end(intervals_gr)[j]
 			output <- paste0(gsub('.allValidPairs.hic', '', hic_file), '.',chr1,':',start1, ":",end1, "."
-							, chr2,':',start2, ":",end2, ".", res,'.txt')
+			, chr2,':',start2, ":",end2, ".", res,'.txt')
 			if (file.exists(paste0(gsub('.allValidPairs.hic', '', hic_file), '.',chr2,':',start2, ":",end2, ".",
 							chr1,':',start1, ":",end1, ".", res,'.txt'))) {
 				next
